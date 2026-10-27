@@ -52,19 +52,19 @@ Scraped Facts: ${JSON.stringify(input.scrapedData || {})}
 
 Return a valid JSON object matching this TypeScript interface:
 {
-  "name": string,
-  "summary": string,
-  "tone": string[],
-  "dos": string[],
-  "donts": string[],
-  "audience": string,
+  "name": string, // Brand name, max 100 chars
+  "summary": string, // Concise summary, max 280 chars
+  "tone": string[], // Exactly 3 to 5 tone descriptors
+  "dos": string[], // Exactly 3 to 5 actionable dos
+  "donts": string[], // Exactly 3 to 5 things to avoid
+  "audience": string, // Target audience, max 300 chars
   "colors": {
-    "primary": string, // hex color
-    "secondary": string, // hex color
-    "background": string, // hex color e.g. #ffffff
-    "text": string // hex color with WCAG AA >= 4.5:1 contrast
+    "primary": string, // valid hex color e.g. #2563eb
+    "secondary": string, // valid hex color e.g. #10b981
+    "background": string, // valid hex color e.g. #ffffff
+    "text": string // valid hex color e.g. #111827
   },
-  "keywords": string[]
+  "keywords": string[] // Between 5 and 10 core keywords
 }
 Output only valid JSON, no surrounding commentary.`;
 
@@ -74,10 +74,28 @@ Output only valid JSON, no surrounding commentary.`;
         });
 
         const text = response.text || '';
-        const parsed = JSON.parse(this.cleanJson(text)) as BrandKitOutput;
+        const raw = JSON.parse(this.cleanJson(text)) as Partial<BrandKitOutput>;
+
+        const sanitized: BrandKitOutput = {
+          name: (raw.name || 'Brand').slice(0, 100),
+          summary: (raw.summary || '').slice(0, 280) || 'Comprehensive brand identity and product suite.',
+          tone: Array.isArray(raw.tone) && raw.tone.length >= 3 ? raw.tone.slice(0, 5) : ['innovative', 'authoritative', 'concise'],
+          dos: Array.isArray(raw.dos) && raw.dos.length >= 3 ? raw.dos.slice(0, 5) : ['Highlight key benefits', 'Maintain clarity', 'Focus on customer outcomes'],
+          donts: Array.isArray(raw.donts) && raw.donts.length >= 3 ? raw.donts.slice(0, 5) : ['Avoid misleading claims', 'Do not use jargon', 'Never overpromise'],
+          audience: (raw.audience || 'Target customers and professionals.').slice(0, 300),
+          colors: {
+            primary: raw.colors?.primary || '#2563eb',
+            secondary: raw.colors?.secondary || '#10b981',
+            background: raw.colors?.background || '#ffffff',
+            text: raw.colors?.text || '#111827',
+          },
+          keywords: Array.isArray(raw.keywords) && raw.keywords.length >= 5
+            ? raw.keywords.slice(0, 12)
+            : [...(Array.isArray(raw.keywords) ? raw.keywords : []), 'marketing', 'innovation', 'product', 'growth', 'digital'].slice(0, 8),
+        };
 
         return {
-          data: parsed,
+          data: sanitized,
           provider: 'gemini',
         };
       });
@@ -135,7 +153,7 @@ Return a JSON object matching:
   "creativeSpec": {
     "headline": string,
     "subline": string,
-    "templateId": "quote-card" | "feature-card" | "tip-card",
+    "templateId": "minimal-quote" | "feature-card" | "editorial-tip",
     "colors": {
       "primary": string,
       "secondary": string,
