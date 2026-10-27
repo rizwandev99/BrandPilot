@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #FAFAFB;
+    --surface: #FFFFFF;
+    --surface-2: #F4F4F6;
+    --border: #E6E6EA;
+    --text: #1B1B1F;
+    --text-muted: #6B6B76;
+    --text-faint: #71717A;
+    --accent: #5E6AD2;
+    --accent-hover: #4F5BC4;
+    --accent-soft: #ECEDFB;
+    --on-accent: #FFFFFF;
+    --success: #1F9D6B;
+    --warning: #C77D0A;
+    --danger: #D14343;
+    --info: #2F7FD1;
+  }
+
+  .dark {
+    --bg: #0E0F11;
+    --surface: #141518;
+    --surface-2: #1B1C20;
+    --border: #26272C;
+    --text: #ECECEF;
+    --text-muted: #A0A0AB;
+    --text-faint: #6F707A;
+    --accent: #7C86F0;
+    --accent-hover: #909AF5;
+    --accent-soft: #23253F;
+    --on-accent: #0E0F11;
+    --success: #2EC486;
+    --warning: #E09419;
+    --danger: #E25858;
+    --info: #4A96E6;
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-feature-settings: "rlig" 1, "calt" 1, "tnum" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Linear-grade focus visibility ring */
+  *:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
