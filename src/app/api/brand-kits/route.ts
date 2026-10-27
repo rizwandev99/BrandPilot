@@ -12,6 +12,7 @@ import {
   BrandKitSchema,
 } from '@/lib/validation/brand-kit';
 import * as workspaceService from '@/server/workspace/workspace-service';
+import { ScopedRepository } from '@/server/db/scoped-queries';
 
 async function getWorkspaceId(): Promise<string> {
   let cookieVal: string | undefined;
@@ -118,16 +119,14 @@ export async function POST(req: Request) {
     );
   }
 
-  const workspaceId = await getWorkspaceId();
-  const requestData = parseResult.data;
+  try {
+    const workspaceId = await getWorkspaceId();
+    const requestData = parseResult.data;
 
-  // 1. Instant Sample Brand Kit (AC-F2-06)
-  if ('sample' in requestData && requestData.sample === true) {
-    const [inserted] = await db
-      .insert(brandKits)
-      .values({
-        workspaceId,
-        sourceUrl: null,
+    // 1. Instant Sample Brand Kit (AC-F2-06)
+    if ('sample' in requestData && requestData.sample === true) {
+      const repo = new ScopedRepository(workspaceId);
+      const inserted = await repo.createBrandKit({
         name: SAMPLE_BRAND_KIT.name,
         summary: SAMPLE_BRAND_KIT.summary,
         tone: SAMPLE_BRAND_KIT.tone,
@@ -137,44 +136,40 @@ export async function POST(req: Request) {
         colors: ensureWcagContrast(SAMPLE_BRAND_KIT.colors),
         keywords: SAMPLE_BRAND_KIT.keywords,
         provider: SAMPLE_BRAND_KIT.provider,
-      })
-      .returning();
+      });
 
-    return NextResponse.json(inserted, { status: 201 });
-  }
+      return NextResponse.json(inserted, { status: 201 });
+    }
 
-  if (!('url' in requestData)) {
-    return NextResponse.json(
-      { error: 'INVALID_REQUEST', message: 'URL is required' },
-      { status: 400 }
-    );
-  }
+    if (!('url' in requestData)) {
+      return NextResponse.json(
+        { error: 'INVALID_REQUEST', message: 'URL is required' },
+        { status: 400 }
+      );
+    }
 
-  // 2. URL Extraction Path (AC-F2-01, AC-F2-04, AC-F2-07)
-  const targetUrl = requestData.url;
-  const normalizedUrl = targetUrl.trim().toLowerCase();
-  const cacheKey = createHash('sha256').update(`brand-kit:${normalizedUrl}`).digest('hex');
+    // 2. URL Extraction Path (AC-F2-01, AC-F2-04, AC-F2-07)
+    const targetUrl = requestData.url;
+    const normalizedUrl = targetUrl.trim().toLowerCase();
+    const cacheKey = createHash('sha256').update(`brand-kit:${normalizedUrl}`).digest('hex');
 
-  // Check 24-hour cache (AC-F2-07)
-  try {
-    const cachedRows = await db
-      .select()
-      .from(llmCache)
-      .where(eq(llmCache.key, cacheKey));
+    // Check 24-hour cache (AC-F2-07)
+    try {
+      const cachedRows = await db
+        .select()
+        .from(llmCache)
+        .where(eq(llmCache.key, cacheKey));
 
-    if (cachedRows && cachedRows.length > 0) {
-      const cached = cachedRows[0];
-      const ageMs = Date.now() - new Date(cached.createdAt).getTime();
-      const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+      if (cachedRows && cachedRows.length > 0) {
+        const cached = cachedRows[0];
+        const ageMs = Date.now() - new Date(cached.createdAt).getTime();
+        const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
-      if (ageMs < TWENTY_FOUR_HOURS) {
-        // intentional any: cached response is stored as jsonb in DB
-        const cachedKit = cached.response as any;
-        const [inserted] = await db
-          .insert(brandKits)
-          .values({
-            workspaceId,
-            sourceUrl: targetUrl,
+        if (ageMs < TWENTY_FOUR_HOURS) {
+          // intentional any: cached response is stored as jsonb in DB
+          const cachedKit = cached.response as any;
+          const repo = new ScopedRepository(workspaceId);
+          const inserted = await repo.createBrandKit({
             name: cachedKit.name,
             summary: cachedKit.summary,
             tone: cachedKit.tone,
@@ -183,98 +178,95 @@ export async function POST(req: Request) {
             audience: cachedKit.audience,
             colors: ensureWcagContrast(cachedKit.colors),
             keywords: cachedKit.keywords,
+            sourceUrl: targetUrl,
             provider: cachedKit.provider || 'gemini',
-          })
-          .returning();
+          });
 
-        return NextResponse.json(inserted, { status: 201 });
-      }
-    }
-  } catch (err) {
-    // Cache check error should not block generation
-  }
-
-  // 3. Scrape website with SSRF Guard (AC-F2-02, AC-F2-03, AC-F2-09)
-  let html = '';
-  try {
-    const resp = await safeFetch(targetUrl);
-    html = await resp.text();
-  // intentional any: safeFetch error structure
-  } catch (err: any) {
-    return NextResponse.json(
-      {
-        error: err.code || 'UPSTREAM_ERROR',
-        message: 'We could not open that website. Try another URL or use the sample brand.',
-      },
-      { status: 422 }
-    );
-  }
-
-  // 4. Extract facts via Cheerio
-  const facts = extractBrandFacts(html, targetUrl);
-
-  // 5. Generate structured Brand Kit (Gemini or Fallback) (AC-F2-04)
-  // intentional any: dynamically generated brand kit shape before schema parsing
-  let generatedKit: any = null;
-  let usedProvider = 'fallback';
-
-  try {
-    // intentional any: dynamic import of provider module with fallback
-    const geminiMod = (await import('@/server/llm/gemini-provider').catch(() => null)) as any;
-    if (geminiMod) {
-      // intentional any: raw LLM kit response before schema validation
-      let rawKit: any = null;
-      if (typeof geminiMod.generateBrandKitWithGemini === 'function') {
-        rawKit = await geminiMod.generateBrandKitWithGemini(facts);
-      } else if (geminiMod.GeminiProvider) {
-        const provider = new geminiMod.GeminiProvider();
-        const res = await provider.generateBrandKit({ url: targetUrl, scrapedData: facts });
-        rawKit = res.data;
-      }
-
-      if (rawKit) {
-        // Validate with Zod
-        const validateResult = BrandKitSchema.safeParse(rawKit);
-        if (validateResult.success) {
-          generatedKit = validateResult.data;
-          usedProvider = rawKit.provider || 'gemini';
+          return NextResponse.json(inserted, { status: 201 });
         }
       }
+    } catch (err) {
+      // Cache check error should not block generation
     }
-  } catch (err) {
-    // LLM failed, quota exhausted, or validation error: fallback to offline generator
-  }
 
-  if (!generatedKit) {
-    generatedKit = generateFallbackBrandKit(facts, targetUrl);
-    usedProvider = 'fallback';
-  }
+    // 3. Scrape website with SSRF Guard (AC-F2-02, AC-F2-03, AC-F2-09)
+    let html = '';
+    try {
+      const resp = await safeFetch(targetUrl);
+      html = await resp.text();
+    // intentional any: safeFetch error structure
+    } catch (err: any) {
+      return NextResponse.json(
+        {
+          error: err.code || 'UPSTREAM_ERROR',
+          message: 'We could not open that website. Try another URL or use the sample brand.',
+        },
+        { status: 422 }
+      );
+    }
 
-  // Ensure WCAG contrast on palette
-  const finalColors = ensureWcagContrast(generatedKit.colors);
-  generatedKit.colors = finalColors;
-  generatedKit.provider = usedProvider;
+    // 4. Extract facts via Cheerio
+    const facts = extractBrandFacts(html, targetUrl);
 
-  // Save to 24-hour cache (AC-F2-07)
-  try {
-    await db
-      .insert(llmCache)
-      .values({
-        key: cacheKey,
-        response: generatedKit,
-        createdAt: new Date(),
-      })
-      .returning();
-  } catch {
-    // Non-fatal
-  }
+    // 5. Generate structured Brand Kit (Gemini or Fallback) (AC-F2-04)
+    // intentional any: dynamically generated brand kit shape before schema parsing
+    let generatedKit: any = null;
+    let usedProvider = 'fallback';
 
-  // Insert into brandKits table
-  const [inserted] = await db
-    .insert(brandKits)
-    .values({
-      workspaceId,
-      sourceUrl: targetUrl,
+    try {
+      // intentional any: dynamic import of provider module with fallback
+      const geminiMod = (await import('@/server/llm/gemini-provider').catch(() => null)) as any;
+      if (geminiMod) {
+        // intentional any: raw LLM kit response before schema validation
+        let rawKit: any = null;
+        if (typeof geminiMod.generateBrandKitWithGemini === 'function') {
+          rawKit = await geminiMod.generateBrandKitWithGemini(facts);
+        } else if (geminiMod.GeminiProvider) {
+          const provider = new geminiMod.GeminiProvider();
+          const res = await provider.generateBrandKit({ url: targetUrl, scrapedData: facts });
+          rawKit = res.data;
+        }
+
+        if (rawKit) {
+          // Validate with Zod
+          const validateResult = BrandKitSchema.safeParse(rawKit);
+          if (validateResult.success) {
+            generatedKit = validateResult.data;
+            usedProvider = rawKit.provider || 'gemini';
+          }
+        }
+      }
+    } catch (err) {
+      // LLM failed, quota exhausted, or validation error: fallback to offline generator
+    }
+
+    if (!generatedKit) {
+      generatedKit = generateFallbackBrandKit(facts, targetUrl);
+      usedProvider = 'fallback';
+    }
+
+    // Ensure WCAG contrast on palette
+    const finalColors = ensureWcagContrast(generatedKit.colors);
+    generatedKit.colors = finalColors;
+    generatedKit.provider = usedProvider;
+
+    // Save to 24-hour cache (AC-F2-07)
+    try {
+      await db
+        .insert(llmCache)
+        .values({
+          key: cacheKey,
+          response: generatedKit,
+          createdAt: new Date(),
+        })
+        .returning();
+    } catch {
+      // Non-fatal
+    }
+
+    // Save brand kit via ScopedRepository (supports DB and offline in-memory fallback)
+    const repo = new ScopedRepository(workspaceId);
+    const inserted = await repo.createBrandKit({
       name: generatedKit.name,
       summary: generatedKit.summary,
       tone: generatedKit.tone,
@@ -283,19 +275,31 @@ export async function POST(req: Request) {
       audience: generatedKit.audience,
       colors: finalColors,
       keywords: generatedKit.keywords,
+      sourceUrl: targetUrl,
       provider: usedProvider,
-    })
-    .returning();
+    });
 
-  return NextResponse.json(inserted, { status: 201 });
+    return NextResponse.json(inserted, { status: 201 });
+  } catch (err: unknown) {
+    const errorObj = err as Error;
+    console.error('[API /api/brand-kits] Error processing request:', errorObj);
+    if (errorObj?.message?.includes('VALIDATION_ERROR') || errorObj?.message?.includes('Resource cap exceeded')) {
+      return NextResponse.json(
+        { error: 'VALIDATION_ERROR', message: errorObj.message },
+        { status: 400 }
+      );
+    }
+    return NextResponse.json(
+      { error: 'INTERNAL_ERROR', message: errorObj?.message || 'Failed to generate brand kit' },
+      { status: 500 }
+    );
+  }
 }
 
 export async function GET() {
   const workspaceId = await getWorkspaceId();
-  const kits = await db
-    .select()
-    .from(brandKits)
-    .where(eq(brandKits.workspaceId, workspaceId));
+  const repo = new ScopedRepository(workspaceId);
+  const kits = await repo.getBrandKits();
 
   return NextResponse.json(kits);
 }

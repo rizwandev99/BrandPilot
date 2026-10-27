@@ -99,7 +99,9 @@ export default function AgentPage() {
         const res = await fetch('/api/brand-kits');
         if (res.ok) {
           const data = await res.json();
-          const kits: BrandKitSummary[] = data.brandKits || [];
+          const kits: BrandKitSummary[] = Array.isArray(data)
+            ? data
+            : (data.brandKits || []);
           setBrandKits(kits);
           if (kits.length > 0 && kits[0]) {
             setSelectedBrandKitId(kits[0].id);

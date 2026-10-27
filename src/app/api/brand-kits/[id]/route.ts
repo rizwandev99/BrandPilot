@@ -6,6 +6,7 @@ import { brandKits } from '@/server/db/schema';
 import { PatchBrandKitRequestSchema } from '@/lib/validation/brand-kit';
 import { ensureWcagContrast } from '@/lib/color-contrast';
 import * as workspaceService from '@/server/workspace/workspace-service';
+import { ScopedRepository } from '@/server/db/scoped-queries';
 
 async function getWorkspaceId(): Promise<string> {
   let cookieVal: string | undefined;
@@ -34,16 +35,27 @@ export async function GET(req: Request, { params }: RouteParams) {
 
   const workspaceId = await getWorkspaceId();
 
-  const rows = await db
-    .select()
-    .from(brandKits)
-    .where(and(eq(brandKits.id, id), eq(brandKits.workspaceId, workspaceId)));
+  try {
+    const rows = await db
+      .select()
+      .from(brandKits)
+      .where(and(eq(brandKits.id, id), eq(brandKits.workspaceId, workspaceId)));
 
-  if (!rows || rows.length === 0) {
+    if (rows && rows.length > 0) {
+      return NextResponse.json(rows[0], { status: 200 });
+    }
+  } catch {
+    // DB unreachable, fallback to memory store
+  }
+
+  const repo = new ScopedRepository(workspaceId);
+  const kit = await repo.getBrandKitById(id);
+
+  if (!kit) {
     return NextResponse.json({ error: 'NOT_FOUND', message: 'Brand kit not found' }, { status: 404 });
   }
 
-  return NextResponse.json(rows[0], { status: 200 });
+  return NextResponse.json(kit, { status: 200 });
 }
 
 export async function PATCH(req: Request, { params }: RouteParams) {
@@ -78,15 +90,26 @@ export async function PATCH(req: Request, { params }: RouteParams) {
     updateData.colors = ensureWcagContrast(parseResult.data.colors);
   }
 
-  const rows = await db
-    .update(brandKits)
-    .set(updateData)
-    .where(and(eq(brandKits.id, id), eq(brandKits.workspaceId, workspaceId)))
-    .returning();
+  try {
+    const rows = await db
+      .update(brandKits)
+      .set(updateData)
+      .where(and(eq(brandKits.id, id), eq(brandKits.workspaceId, workspaceId)))
+      .returning();
 
-  if (!rows || rows.length === 0) {
+    if (rows && rows.length > 0) {
+      return NextResponse.json(rows[0], { status: 200 });
+    }
+  } catch {
+    // DB unreachable, fallback to memory store
+  }
+
+  const repo = new ScopedRepository(workspaceId);
+  const updated = await repo.updateBrandKit(id, updateData);
+
+  if (!updated) {
     return NextResponse.json({ error: 'NOT_FOUND', message: 'Brand kit not found' }, { status: 404 });
   }
 
-  return NextResponse.json(rows[0], { status: 200 });
+  return NextResponse.json(updated, { status: 200 });
 }
