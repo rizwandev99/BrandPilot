@@ -233,7 +233,7 @@ export function FailureSimulatorModal({
                 className="w-full rounded-md border border-border bg-surface px-3 py-1.5 text-sm text-text focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               />
               <p className="text-[11px] text-text-muted">
-                The mock connector will return this value in the simulated header for testing scheduler wait windows.
+                The sandbox connector will return this value in the simulated header for testing scheduler wait windows.
               </p>
             </div>
           )}

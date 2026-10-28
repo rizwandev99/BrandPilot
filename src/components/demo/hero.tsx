@@ -140,8 +140,8 @@ export function Hero({ onUrlExtracted, onSampleLoaded, className = '' }: HeroPro
 
       {/* Subtitle */}
       <p className="text-base sm:text-lg text-text-muted max-w-2xl mx-auto mb-8 leading-relaxed">
-        Autonomous brand facts extraction, 3-step content agent, Resvg branded cards,
-        and human-in-the-loop review. Built with a 100% offline guarantee.
+        Autonomous brand fact extraction, 3-step content agent pipeline, Resvg branded cards,
+        and human-in-the-loop review.
       </p>
 
       {/* URL Input Form */}
@@ -194,15 +194,15 @@ export function Hero({ onUrlExtracted, onSampleLoaded, className = '' }: HeroPro
         </div>
       </form>
 
-      {/* Quick Example Brand Chips & Instant Sample Button */}
+      {/* Quick Start Brand Presets & Template Button */}
       <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-text-muted mb-4">
-        <span className="font-medium mr-1">Try example:</span>
+        <span className="font-medium mr-1 text-text">Try with example brand:</span>
         {EXAMPLE_BRANDS.map((chip) => (
           <button
             key={chip.name}
             type="button"
             onClick={() => handleChipClick(chip)}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface border border-border text-text hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface border border-border text-text hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors font-medium shadow-sm"
             title={`${chip.name} — ${chip.tagline}`}
           >
             <span>{chip.name}</span>
@@ -216,12 +216,12 @@ export function Hero({ onUrlExtracted, onSampleLoaded, className = '' }: HeroPro
           type="button"
           onClick={handleLoadSample}
           disabled={loading || loadingSample}
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-accent-soft text-accent border border-accent/25 hover:bg-accent hover:text-on-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all font-medium disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-accent-soft text-accent border border-accent/25 hover:bg-accent hover:text-on-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-all font-medium shadow-sm disabled:opacity-50"
         >
           {loadingSample ? (
             <>
               <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
-              <span>Loading...</span>
+              <span>Initializing...</span>
             </>
           ) : (
             <>

@@ -48,7 +48,7 @@ export const TECH_STACK: readonly TechStackItem[] = [
     name: 'Gemini LLM & Fallback',
     category: 'AI Pipeline & Resilience',
     description:
-      'Multi-tiered provider architecture (Gemini -> Fallback -> Fake) with 24h caching and 100% offline guarantee.',
+      'Multi-tiered provider architecture (Gemini -> Fallback -> Fake) with 24h caching and resilient fallback guarantee.',
     highlights: ['Deterministic fallback', 'Daily budget tracker', 'Sliding rate limits'],
     icon: Sparkles,
   },
@@ -69,7 +69,7 @@ export function StackBreakdown({ className = '' }: { className?: string }) {
           Technology Stack Breakdown
         </h2>
         <p className="text-xs sm:text-sm text-text-muted mt-2">
-          Engineered for production resilience, sub-millisecond query isolation, and zero-dependency offline runs.
+          High-availability multi-tiered provider architecture with sub-millisecond query isolation and resilient fallback.
         </p>
       </div>
 

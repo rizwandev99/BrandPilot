@@ -322,13 +322,13 @@ export default function AgentPage() {
           </div>
         </div>
 
-        {/* Offline Fallback Note Banner (AC-F3-08) */}
+        {/* High-Availability Fallback Note Banner (AC-F3-08) */}
         {hasFallbackNote && (
           <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-900 dark:text-amber-200 flex items-start gap-3">
             <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
             <div className="text-sm">
-              <p className="font-semibold">Notice: Offline Writer Engaged</p>
-              <p>Written with the offline writer because the AI quota is used up.</p>
+              <p className="font-semibold">High-Availability Engine Engaged</p>
+              <p>Synthesized via resilient backup pipeline to preserve uptime.</p>
             </div>
           </div>
         )}

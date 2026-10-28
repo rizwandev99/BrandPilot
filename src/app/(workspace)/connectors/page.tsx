@@ -356,7 +356,7 @@ function ConnectorsContent() {
             </h1>
           </div>
           <p className="mt-1 text-xs text-text-muted">
-            Manage multi-channel social publishing adapters, probe channel latency, and inject failure modes into sandbox runners.
+            Manage multi-channel social publishing adapters, probe channel latency, and verify resilience in sandbox environments (like Stripe Sandbox).
           </p>
         </div>
 

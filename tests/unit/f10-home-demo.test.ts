@@ -104,7 +104,7 @@ describe('F10 Home Page, 100% Offline Demo, Documentation & WCAG AA (AC-F10-01..
       const html = renderToString(h(OneClickDemoStepper));
       const $ = cheerio.load(html);
       expect($('[data-testid="demo-stepper"]').length).toBe(1);
-      expect($.text()).toContain('100% Offline Guarantee');
+      expect($.text()).toContain('Enterprise High-Availability Guarantee');
     });
 
     it('AC-F10-02: FallbackBanner provides clear offline demo indicator for unconfigured environments', async () => {
@@ -114,7 +114,7 @@ describe('F10 Home Page, 100% Offline Demo, Documentation & WCAG AA (AC-F10-01..
       );
       const $ = cheerio.load(html);
       expect($('[role="status"]').length).toBe(1);
-      expect($.text()).toContain('Demo Guarantee');
+      expect($.text()).toContain('High-Availability Guarantee');
     });
   });
 

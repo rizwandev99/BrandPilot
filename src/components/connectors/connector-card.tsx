@@ -130,7 +130,9 @@ export function ConnectorCard({
                       : 'border border-border bg-surface-2 text-text-muted'
                   }`}
                 >
-                  {connector.mode}
+                  {connector.mode === 'live'
+                    ? 'Live OAuth Integration'
+                    : 'Sandbox Environment (Safe Testing)'}
                 </span>
               </div>
               <p className="text-xs text-text-muted font-mono mt-0.5 truncate max-w-[200px]">

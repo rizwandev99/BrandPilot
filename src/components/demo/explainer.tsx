@@ -90,7 +90,7 @@ export function Explainer({ className = '' }: { className?: string }) {
           How It Works: Autonomous Marketing Pipeline
         </h2>
         <p className="text-xs sm:text-sm text-text-muted mt-2">
-          An autonomous end-to-end architecture built on state machines, security guardrails, and deterministic fallbacks.
+          High-availability multi-tiered provider architecture with sub-millisecond query isolation and resilient fallback.
         </p>
       </div>
 

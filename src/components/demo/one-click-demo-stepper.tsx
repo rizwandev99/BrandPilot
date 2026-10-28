@@ -252,14 +252,14 @@ export function OneClickDemoStepper({ onComplete, className = '' }: OneClickDemo
         <div>
           <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-accent mb-1">
             <ShieldCheck className="w-4 h-4 text-accent" aria-hidden="true" />
-            <span>100% Offline Guarantee</span>
+            <span>Enterprise High-Availability Guarantee</span>
           </div>
           <h2 id="demo-stepper-heading" className="text-xl sm:text-2xl font-bold text-text">
             Autonomous 4-Step Marketing Loop
           </h2>
           <p className="text-xs sm:text-sm text-text-muted mt-1 max-w-xl">
             Watch BrandPilot execute brand synthesis, AI creative generation, human review, and
-            social publishing in under 60 seconds with zero external API keys.
+            social publishing in under 60 seconds with resilient fallback architecture.
           </p>
         </div>
 

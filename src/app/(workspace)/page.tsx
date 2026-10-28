@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'BrandPilot — Autonomous AI Marketing Platform',
     description:
-      'Turn website URLs into high-impact multi-channel social campaigns with 100% offline guarantee.',
+      'Turn website URLs into high-impact multi-channel social campaigns with resilient high-availability fallback architecture.',
     url: 'https://brandpilot.dev',
     siteName: 'BrandPilot',
     images: [
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'BrandPilot — Autonomous AI Marketing Platform',
     description:
-      'Turn website URLs into high-impact multi-channel social campaigns with 100% offline guarantee.',
+      'Turn website URLs into high-impact multi-channel social campaigns with resilient high-availability fallback architecture.',
     creator: '@BrandPilot',
     images: ['/og-card.png'],
   },
