@@ -101,7 +101,7 @@ export function Sidebar({
     }
     if (typeof window !== 'undefined') {
       const confirmed = window.confirm(
-        'Reset all demo data? This creates a fresh isolated workspace state.'
+        'Reset workspace data? This restores a fresh isolated workspace state.'
       );
       if (confirmed) {
         try {
@@ -222,10 +222,10 @@ export function Sidebar({
             'flex items-center gap-2.5 w-full rounded-md px-2.5 py-2 text-xs font-medium text-text-muted hover:text-danger hover:bg-surface-2 transition-colors',
             collapsed && 'justify-center px-0'
           )}
-          title="Reset demo workspace"
+          title="Reset isolated workspace"
         >
           <RotateCcw className="h-4 w-4 shrink-0" />
-          {!collapsed && <span>Reset Demo</span>}
+          {!collapsed && <span>Reset Workspace</span>}
         </button>
       </div>
     </div>

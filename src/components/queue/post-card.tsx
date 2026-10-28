@@ -13,6 +13,10 @@ import {
   AlertTriangle,
   Clock,
   Sparkles,
+  Send,
+  RotateCcw,
+  CalendarX,
+  Loader2,
 } from 'lucide-react';
 import type { PostItem } from './edit-post-dialog';
 import { canTransition, type PostStatus } from '@/lib/status-machine';
@@ -25,6 +29,8 @@ export interface PostCardProps {
   onHold: (post: PostItem) => void;
   onReject: (post: PostItem) => Promise<void>;
   onEdit: (post: PostItem) => void;
+  onTransition?: (post: PostItem, targetStatus: string) => Promise<void>;
+  onPublishNow?: (post: PostItem) => Promise<void>;
 }
 
 export function getStatusBadge(status: string) {
@@ -102,14 +108,22 @@ export function PostCard({
   onHold,
   onReject,
   onEdit,
+  onTransition,
+  onPublishNow,
 }: PostCardProps) {
   const [imageError, setImageError] = React.useState(false);
+  const [isPublishingLocal, setIsPublishingLocal] = React.useState(false);
   const statusBadge = getStatusBadge(post.status);
   const channelBadgeColor = getChannelColor(post.channel);
 
-  const canApprove = canTransition(post.status, 'approved');
-  const canHold = canTransition(post.status, 'held');
-  const canReject = canTransition(post.status, 'rejected');
+  const isWaitingApproval = post.status === 'in_review';
+  const isApproved = post.status === 'approved';
+  const isScheduled = post.status === 'scheduled';
+  const isHeld = post.status === 'held';
+  const isRejected = post.status === 'rejected';
+  const isPublishing = post.status === 'publishing' || isPublishingLocal;
+  const isPublished = post.status === 'published';
+  const isFailed = post.status === 'failed';
 
   const scheduledDateFormatted = post.scheduledAt
     ? new Date(post.scheduledAt).toLocaleString(undefined, {
@@ -251,50 +265,168 @@ export function PostCard({
         </div>
 
         <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-          <button
-            type="button"
-            onClick={() => onEdit(post)}
-            title="Edit post (E)"
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md border border-border text-xs text-text hover:bg-surface-2 transition-colors"
-          >
-            <Edit2 className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Edit</span>
-          </button>
-
-          {canHold && (
+          {/* Edit is available unless currently publishing */}
+          {!isPublishing && (
             <button
               type="button"
-              onClick={() => onHold(post)}
-              title="Hold post (H)"
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md border border-border text-xs text-warning hover:bg-warning/10 transition-colors"
+              onClick={() => onEdit(post)}
+              title="Edit post (E)"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md border border-border text-xs text-text hover:bg-surface-2 transition-colors cursor-pointer"
             >
-              <PauseCircle className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Hold</span>
+              <Edit2 className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Edit</span>
             </button>
           )}
 
-          {canReject && (
+          {/* IN_REVIEW: Hold, Reject, Approve */}
+          {isWaitingApproval && (
+            <>
+              <button
+                type="button"
+                onClick={() => onHold(post)}
+                title="Hold post (H)"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md border border-border text-xs text-warning hover:bg-warning/10 transition-colors cursor-pointer"
+              >
+                <PauseCircle className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Hold</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onReject(post)}
+                title="Reject post"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md border border-border text-xs text-danger hover:bg-danger/10 transition-colors cursor-pointer"
+              >
+                <XCircle className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Reject</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onApprove(post)}
+                title="Approve post (A)"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-success text-on-accent text-xs font-semibold hover:opacity-90 shadow-xs transition-opacity cursor-pointer"
+              >
+                <CheckCircle className="h-3.5 w-3.5" />
+                <span>Approve</span>
+              </button>
+            </>
+          )}
+
+          {/* APPROVED: Publish Now or Reopen Review */}
+          {isApproved && (
+            <>
+              {onTransition && (
+                <button
+                  type="button"
+                  onClick={() => onTransition(post, 'in_review')}
+                  title="Move back to review"
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md border border-border text-xs text-text-muted hover:bg-surface-2 hover:text-text transition-colors cursor-pointer"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Reopen Review</span>
+                </button>
+              )}
+
+              {onPublishNow && (
+                <button
+                  type="button"
+                  disabled={isPublishing}
+                  onClick={async () => {
+                    setIsPublishingLocal(true);
+                    try {
+                      await onPublishNow(post);
+                    } finally {
+                      setIsPublishingLocal(false);
+                    }
+                  }}
+                  title="Publish immediately to channel"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-accent text-on-accent text-xs font-semibold hover:bg-accent-hover shadow-xs transition-colors cursor-pointer"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  <span>Publish Now</span>
+                </button>
+              )}
+            </>
+          )}
+
+          {/* SCHEDULED: Unschedule (back to approved) or Publish Now */}
+          {isScheduled && (
+            <>
+              {onTransition && (
+                <button
+                  type="button"
+                  onClick={() => onTransition(post, 'approved')}
+                  title="Cancel scheduled publication and revert to approved"
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md border border-border text-xs text-warning hover:bg-warning/10 transition-colors cursor-pointer"
+                >
+                  <CalendarX className="h-3.5 w-3.5" />
+                  <span>Unschedule</span>
+                </button>
+              )}
+
+              {onPublishNow && (
+                <button
+                  type="button"
+                  disabled={isPublishing}
+                  onClick={async () => {
+                    setIsPublishingLocal(true);
+                    try {
+                      await onPublishNow(post);
+                    } finally {
+                      setIsPublishingLocal(false);
+                    }
+                  }}
+                  title="Publish immediately to channel"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-accent text-on-accent text-xs font-semibold hover:bg-accent-hover shadow-xs transition-colors cursor-pointer"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  <span>Publish Now</span>
+                </button>
+              )}
+            </>
+          )}
+
+          {/* HELD / REJECTED: Move to Review */}
+          {(isHeld || isRejected) && onTransition && (
             <button
               type="button"
-              onClick={() => onReject(post)}
-              title="Reject post"
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md border border-border text-xs text-danger hover:bg-danger/10 transition-colors"
+              onClick={() => onTransition(post, 'in_review')}
+              title="Move back to review"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md border border-border text-xs text-text-muted hover:bg-surface-2 hover:text-text transition-colors cursor-pointer"
             >
-              <XCircle className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Reject</span>
+              <RotateCcw className="h-3.5 w-3.5" />
+              <span>Move to Review</span>
             </button>
           )}
 
-          {canApprove && (
+          {/* FAILED: Retry Publish */}
+          {isFailed && onPublishNow && (
             <button
               type="button"
-              onClick={() => onApprove(post)}
-              title="Approve post (A)"
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-success text-on-accent text-xs font-medium hover:opacity-90 shadow-xs transition-opacity"
+              onClick={() => onPublishNow(post)}
+              title="Retry publishing"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-danger text-white text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer"
             >
+              <RotateCcw className="h-3.5 w-3.5" />
+              <span>Retry</span>
+            </button>
+          )}
+
+          {/* PUBLISHING */}
+          {isPublishing && (
+            <span className="inline-flex items-center gap-1.5 text-xs text-accent font-medium px-2 py-1">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              Publishing...
+            </span>
+          )}
+
+          {/* PUBLISHED */}
+          {isPublished && (
+            <span className="inline-flex items-center gap-1 text-xs text-success font-medium px-2 py-1">
               <CheckCircle className="h-3.5 w-3.5" />
-              <span>Approve</span>
-            </button>
+              Published
+            </span>
           )}
         </div>
       </div>

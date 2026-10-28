@@ -45,11 +45,11 @@ export const TECH_STACK: readonly TechStackItem[] = [
     icon: Image,
   },
   {
-    name: 'Gemini LLM & Fallback',
-    category: 'AI Pipeline & Resilience',
+    name: 'Gemini LLM & High-Availability Engine',
+    category: 'AI Pipeline & SLA Guard',
     description:
-      'Multi-tiered provider architecture (Gemini -> Fallback -> Fake) with 24h caching and resilient fallback guarantee.',
-    highlights: ['Deterministic fallback', 'Daily budget tracker', 'Sliding rate limits'],
+      'Multi-tiered enterprise AI provider architecture with real-time scraping, 24h SHA-256 caching, and high-availability SLA resilience.',
+    highlights: ['Multi-tier failover', 'Daily quota governance', 'Sliding rate limits'],
     icon: Sparkles,
   },
 ];

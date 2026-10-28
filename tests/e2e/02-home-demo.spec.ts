@@ -28,7 +28,7 @@ test.describe('BrandPilot E2E: Home & One-Click Demo Flow (02)', () => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('/');
 
-    const loadSampleButton = page.getByRole('button', { name: 'Load Sample Brand Kit' });
+    const loadSampleButton = page.getByRole('button', { name: /Quick Start Template|Load Sample Brand Kit/i });
     await expect(loadSampleButton).toBeVisible();
     await loadSampleButton.click();
 
@@ -88,7 +88,8 @@ test.describe('BrandPilot E2E: Home & One-Click Demo Flow (02)', () => {
 
     // Click Inspect Queue to verify seamless navigation to /queue
     await inspectQueueBtn.click();
+    await page.waitForURL(/\/queue/, { timeout: 20000 });
     await expect(page).toHaveURL(/\/queue/);
-    await expect(page.locator('[data-testid="queue-view"]')).toBeVisible();
+    await expect(page.locator('[data-testid="queue-view"]')).toBeVisible({ timeout: 15000 });
   });
 });

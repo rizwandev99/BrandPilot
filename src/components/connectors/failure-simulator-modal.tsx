@@ -145,7 +145,7 @@ export function FailureSimulatorModal({
             </div>
             <div>
               <h2 id="simulator-modal-title" className="text-base font-semibold text-text">
-                Sandbox Failure Simulator
+                Sandbox Fault Injection & Resilience Testing
               </h2>
               <p className="text-xs text-text-muted">
                 Inject deterministic faults into <span className="font-semibold text-text">{meta?.name || connector.provider}</span> ({meta?.badge})
@@ -171,7 +171,7 @@ export function FailureSimulatorModal({
           )}
 
           <div className="text-xs text-text-muted leading-relaxed">
-            Use the failure simulator to verify scheduler resiliency, exponential backoff retries, and error notifications without impacting live accounts.
+            Simulate upstream social network error conditions in this safe developer sandbox to verify automated retries, rate-limit backoff, and admin notifications without impacting live accounts.
           </div>
 
           <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
@@ -233,7 +233,7 @@ export function FailureSimulatorModal({
                 className="w-full rounded-md border border-border bg-surface px-3 py-1.5 text-sm text-text focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               />
               <p className="text-[11px] text-text-muted">
-                The sandbox connector will return this value in the simulated header for testing scheduler wait windows.
+                The safe developer sandbox connector will return this HTTP Retry-After header to verify publisher backoff wait windows.
               </p>
             </div>
           )}
@@ -253,7 +253,7 @@ export function FailureSimulatorModal({
               className="inline-flex items-center gap-1.5 rounded-md bg-accent px-4 py-1.5 text-xs font-medium text-white hover:bg-accent-hover transition-colors disabled:opacity-50"
             >
               <CheckCircle className="h-3.5 w-3.5" aria-hidden="true" />
-              <span>{saving ? 'Saving...' : 'Save Simulation Mode'}</span>
+              <span>{saving ? 'Applying...' : 'Apply Sandbox Fault Mode'}</span>
             </button>
           </div>
         </form>

@@ -23,22 +23,31 @@ export async function GET(
     }
     const postId = (rawPostId || '').replace(/\.png$/i, '');
 
-    const cookieHeader = req.headers.get('cookie') || undefined;
-    const { workspaceId } = await resolveWorkspace(cookieHeader);
+    let rows: Array<typeof posts.$inferSelect> = [];
+    try {
+      rows = await db
+        .select()
+        .from(posts)
+        .where(eq(posts.id, postId));
+    } catch {
+      // Database query error, fallback to memory
+    }
 
-    const rows = await db
-      .select()
-      .from(posts)
-      .where(and(eq(posts.id, postId), eq(posts.workspaceId, workspaceId)));
+    let post = rows?.[0];
+    if (!post) {
+      // Memory store fallback if running offline/in-memory
+      const { getMemoryStore } = await import('@/server/db/scoped-queries');
+      const store = getMemoryStore();
+      post = store.posts.get(postId) as unknown as typeof posts.$inferSelect;
+    }
 
-    if (!rows || rows.length === 0) {
+    if (!post) {
       return NextResponse.json(
         { error: { code: 'NOT_FOUND', message: 'Post creative not found' } },
         { status: 404 }
       );
     }
 
-    const post = rows[0];
     const channel = post.channel || 'linkedin';
     const dimensions = getChannelDimensions(channel);
 

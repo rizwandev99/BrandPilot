@@ -167,3 +167,40 @@ Ensure all automated unit and integration tests (406+ tests) and end-to-end user
 ### Quality & Test Verification
 - [ ] Automated test suite (`pnpm test`) passes with 100% passing tests and 0 failures.
 - [ ] TypeScript check (`pnpm typecheck`) and linter (`pnpm lint`) pass with 0 errors and 0 warnings.
+
+
+## Follow-up — 2026-10-28T06:22:41Z
+
+Implement and execute an end-to-end Playwright test suite verifying BrandPilot's complete product journey under strict live network conditions: Brand Kit live URL extraction with SSRF guard and WCAG AA validation, autonomous 3-step agent generation with Gemini copy and Resvg PNG rendering, approval queue keyboard shortcuts (A, E) with version/state-reset integrity, and connectors sandbox resilience controls.
+
+Working directory: c:\Users\rizwan\Desktop\projects\BrandPilot-AuroScale
+Integrity mode: development
+
+## Requirements
+
+### R1. Brand Kit Live Extraction Flow
+Execute an end-to-end browser test typing a live external URL (`https://linear.app` or `https://stripe.com`) and triggering "Extract Brand". Verify DOM metadata scraping via Cheerio, SSRF guard adherence, and mathematical WCAG AA luminance ratio calculations displaying contrast compliance badges.
+
+### R2. Autonomous Agent Generation Pipeline
+Select the extracted brand kit and trigger "Run Agent". Verify execution through the autonomous 3-step state machine (`idea` -> `creative` -> `campaign`) leveraging live Google Gemini AI to produce platform-specific copy, while validating server-side Resvg dynamic high-resolution PNG image card rendering.
+
+### R3. Approval Queue & State Machine Integrity
+Navigate to the Approval Queue (`/queue`) and verify human-in-the-loop review operations using keyboard hotkeys (`A` to approve, `E` to edit). Verify that editing an approved post increments the version number and resets its status to `in_review` to prevent unauthorized updates.
+
+### R4. Connectors & Network Resilience
+Navigate to the Connectors page (`/connectors`) and verify visibility and interactivity of both Sandbox Simulator and Live OAuth tabs. Confirm developers can configure simulated rate limits and latency spikes to verify system resilience under adverse conditions.
+
+## Verification Resources
+- Existing Playwright test configuration: `playwright.config.ts`
+- Existing E2E test suite patterns: `tests/e2e/fixtures.ts`, `tests/e2e/01-app-shell.spec.ts`, `tests/e2e/02-home-demo.spec.ts`, `tests/e2e/03-brand-kit.spec.ts`
+- Execution command: `pnpm exec playwright test`
+
+## Acceptance Criteria
+
+### Execution & Pass Criteria
+- [ ] A dedicated or unified Playwright spec (e.g. `tests/e2e/04-workflow-journey.spec.ts`) accurately automates the 4-step workflow end-to-end.
+- [ ] Live external URL extraction completes and validates brand name, color palette, and WCAG AA compliance.
+- [ ] 3-step agent state machine executes to completion, asserting on generated copy and Resvg image endpoints.
+- [ ] Hotkey actions (`A`, `E`) trigger corresponding approval and edit state transitions, with verified version bump and status reset to `in_review`.
+- [ ] Connectors Sandbox controls (latency/rate-limit sliders/switches) and Live OAuth tabs are exercised and verified.
+- [ ] Test suite executes via `pnpm exec playwright test` and exits cleanly with 0 failures.

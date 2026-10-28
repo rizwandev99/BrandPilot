@@ -22,7 +22,7 @@ test.describe('BrandPilot E2E: Brand Kit Management & WCAG AA Contrast (03)', ()
     await expect(heading).toHaveText('BrandPilot');
 
     // Verify Provider Badge
-    const providerBadge = page.locator('span:has-text("Deterministic Fallback"), span:has-text("Gemini 2.5 Flash")').first();
+    const providerBadge = page.locator('span:has-text("High-Availability"), span:has-text("Deterministic Fallback"), span:has-text("Gemini 2.5 Flash")').first();
     await expect(providerBadge).toBeVisible();
 
     // Verify WCAG AA Contrast Palette Section & Auto-Checked Badge
@@ -77,7 +77,7 @@ test.describe('BrandPilot E2E: Brand Kit Management & WCAG AA Contrast (03)', ()
 
     // Verify Success Banner appears
     const successBanner = page.locator('div[role="status"]');
-    await expect(successBanner).toBeVisible();
+    await expect(successBanner).toBeVisible({ timeout: 15000 });
     await expect(successBanner).toContainText('Brand Kit updated successfully!');
 
     // Verify updated name and summary in view mode

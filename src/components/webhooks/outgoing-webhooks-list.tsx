@@ -48,7 +48,7 @@ export function OutgoingWebhooksList({
         <div>
           <h2 className="text-base font-semibold text-text">Outgoing Webhooks</h2>
           <p className="text-xs text-text-muted mt-0.5">
-            Forward published posts, approvals, and system events to third-party endpoints or the built-in sandbox.
+            Forward published posts, approvals, and system events to third-party endpoints or the internal developer sandbox receiver.
           </p>
         </div>
         <button

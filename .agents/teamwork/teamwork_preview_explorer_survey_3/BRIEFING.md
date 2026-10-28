@@ -1,4 +1,4 @@
-# BRIEFING — 2026-10-28T05:36:00Z
+# BRIEFING — 2026-10-28T05:47:30Z
 
 ## Mission
 Investigate test suite (unit, integration, E2E), identify copy assertions impacted by modernization (R1/R2), map test coverage, and document test commands, runner configs, and baseline counts.
@@ -17,19 +17,22 @@ Investigate test suite (unit, integration, E2E), identify copy assertions impact
 
 ## Current Parent
 - Conversation ID: b0fc9aa4-00fa-4892-8700-32ecbee457db
-- Updated: 2026-10-28T05:36:00Z
+- Updated: 2026-10-28T05:47:30Z
 
 ## Investigation State
-- **Explored paths**: DISPATCH.md, ORIGINAL_REQUEST.md
-- **Key findings**: Initialized survey of test suite for R1/R2 copy modernization impact
-- **Unexplored areas**: package.json scripts, vitest/playwright configs, tests/ directory, search for copy assertions
+- **Explored paths**: `tests/unit/*`, `tests/integration/*`, `tests/e2e/*`, `package.json`, `vitest.config.ts`, `playwright.config.ts`, `src/components/*`, `src/app/*`
+- **Key findings**:
+  - Baseline commands & counts: `pnpm test` (406/406 pass), `pnpm typecheck` (0 errors), `pnpm lint` (0 errors), `pnpm test:e2e` (10/11 pass, 1 locator timeout on save banner).
+  - Identified 4 test files needing synchronized assertion updates when copy is modernized: `tests/unit/f0-app-shell.test.ts` (Reset Demo -> Reset Workspace), `tests/unit/f10-home-demo.test.ts` (Load Sample Brand Kit -> Quick Start Template, README 100% Offline check), `tests/e2e/02-home-demo.spec.ts` (Load Sample Brand Kit button selector), and `tests/e2e/03-brand-kit.spec.ts` (Deterministic Fallback badge & save banner timeout).
+  - Connectors UI and Failure Simulator modernization have zero broken test assertions in unit/integration tests as long as backend schema property `simulationFailure` is retained.
+- **Unexplored areas**: None within assigned survey scope.
 
 ## Key Decisions Made
-- Perform systematic grep across tests/ for demo/offline/mock/simulator keywords
-- Verify test runner commands and baseline pass counts
+- Formulate precise before/after regex recommendations for tests so subsequent implementation subagents can achieve 0 broken assertions.
+- Deliver comprehensive handoff report to `handoff.md`.
 
 ## Artifact Index
-- DISPATCH.md — Incoming assignment
-- BRIEFING.md — Working memory
+- DISPATCH.md — Incoming assignment and timestamped message log
+- BRIEFING.md — Working memory and investigation state
 - progress.md — Liveness heartbeat
-- handoff.md — Final investigation report
+- handoff.md — Comprehensive 5-component survey handoff report

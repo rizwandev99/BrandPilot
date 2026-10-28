@@ -131,8 +131,8 @@ export function ConnectorCard({
                   }`}
                 >
                   {connector.mode === 'live'
-                    ? 'Live OAuth Integration'
-                    : 'Sandbox Environment (Safe Testing)'}
+                    ? 'Live Production OAuth'
+                    : 'Safe Developer Sandbox'}
                 </span>
               </div>
               <p className="text-xs text-text-muted font-mono mt-0.5 truncate max-w-[200px]">
@@ -187,7 +187,7 @@ export function ConnectorCard({
             <div className="flex items-center gap-1.5">
               <AlertTriangle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
               <span className="font-medium">
-                Fault active: <code className="font-mono">{connector.simulationFailure}</code>
+                Fault Injected: <code className="font-mono">{connector.simulationFailure}</code>
               </span>
             </div>
             <button
@@ -195,7 +195,7 @@ export function ConnectorCard({
               onClick={() => onOpenSimulator(connector)}
               className="text-[11px] underline hover:text-text font-medium"
             >
-              Modify
+              Change Fault
             </button>
           </div>
         )}
@@ -271,11 +271,11 @@ export function ConnectorCard({
             type="button"
             onClick={() => onOpenSimulator(connector)}
             className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs font-medium text-text-muted hover:bg-surface-2 hover:text-text transition-colors"
-            title="Configure simulated fault injection"
-            aria-label={`Configure failure simulator for ${meta.name}`}
+            title="Configure fault injection testing for this sandbox"
+            aria-label={`Configure fault injection for ${meta.name}`}
           >
             <Sliders className="h-3.5 w-3.5" aria-hidden="true" />
-            <span className="hidden sm:inline">Simulation</span>
+            <span className="hidden sm:inline">Fault Mode</span>
           </button>
         </div>
       </div>

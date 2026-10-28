@@ -123,7 +123,7 @@ describe('F0 Foundation: Responsive App Shell (AC-F0-06)', () => {
       expect($('[data-testid="brand-logo"]').length).toBe(1);
       expect($('[data-testid="theme-toggle"]').length).toBe(1);
       expect($('[data-testid="reset-demo-button"]').length).toBe(1);
-      expect($('[data-testid="reset-demo-button"]').text()).toContain('Reset Demo');
+      expect($('[data-testid="reset-demo-button"]').text()).toContain('Reset Workspace');
     });
   });
 

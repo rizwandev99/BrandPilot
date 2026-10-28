@@ -10,8 +10,10 @@ import { ScopedRepository } from '@/server/db/scoped-queries';
 
 async function getWorkspaceId(): Promise<string> {
   let cookieVal: string | undefined;
+  type CookieStoreType = Awaited<ReturnType<typeof cookies>>;
+  let cookieStore: CookieStoreType | undefined;
   try {
-    const cookieStore = await cookies();
+    cookieStore = await cookies();
     const cookieName = workspaceService.WORKSPACE_COOKIE_NAME || 'brandpilot_workspace_id';
     cookieVal = cookieStore.get(cookieName)?.value;
   } catch {
@@ -19,6 +21,19 @@ async function getWorkspaceId(): Promise<string> {
   }
 
   const resolution = await workspaceService.resolveWorkspace(cookieVal);
+
+  if (cookieStore) {
+    try {
+      cookieStore.set(
+        workspaceService.WORKSPACE_COOKIE_NAME,
+        resolution.workspaceId,
+        workspaceService.WORKSPACE_COOKIE_OPTIONS
+      );
+    } catch {
+      // Non-fatal
+    }
+  }
+
   return resolution.workspaceId;
 }
 

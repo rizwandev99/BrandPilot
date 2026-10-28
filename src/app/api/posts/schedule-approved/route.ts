@@ -1,6 +1,6 @@
 import { db } from '@/server/db';
 import { posts, publishJobs, connectors } from '@/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 import { resolveWorkspace } from '@/server/workspace/workspace-service';
 import { getConnector } from '@/lib/connectors/registry';
@@ -54,13 +54,16 @@ export async function POST(req: Request) {
         const connRows = await db
           .select()
           .from(connectors)
-          .where(eq(connectors.provider, post.channel));
+          .where(
+            workspaceId
+              ? and(eq(connectors.provider, post.channel), eq(connectors.workspaceId, workspaceId))
+              : eq(connectors.provider, post.channel)
+          );
 
         if (Array.isArray(connRows)) {
           if (connRows.length === 0) {
             isConnected = false;
           } else {
-            // Only evaluate status if returned objects are actual connector records
             const hasConnectorFields = connRows.some((c) => 'provider' in c || 'accountLabel' in c);
             if (hasConnectorFields) {
               const activeConn = connRows.find(
@@ -80,13 +83,15 @@ export async function POST(req: Request) {
     }
 
     // Verify channel connector in registry
-    try {
-      const conn = getConnector(post.channel as SocialProvider, 'sandbox');
-      if (!conn) {
+    if (isConnected) {
+      try {
+        const conn = getConnector(post.channel as SocialProvider, 'sandbox');
+        if (!conn) {
+          isConnected = false;
+        }
+      } catch {
         isConnected = false;
       }
-    } catch {
-      isConnected = false;
     }
 
     if (!isConnected) {
@@ -114,17 +119,31 @@ export async function POST(req: Request) {
       }
 
       if (typeof db.insert === 'function') {
-        await db.insert(publishJobs).values({
-          id: jobId,
-          postId: post.id,
-          connectorId: connectorId ?? randomUUID(),
-          idempotencyKey,
-          attempt: 0,
-          status: 'queued',
-          nextAttemptAt: scheduledAt,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
+        try {
+          await db.insert(publishJobs).values({
+            id: jobId,
+            postId: post.id,
+            connectorId: connectorId ?? randomUUID(),
+            idempotencyKey,
+            attempt: 0,
+            status: 'queued',
+            nextAttemptAt: scheduledAt,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
+        } catch {
+          // If job already exists for this idempotency key, update status and schedule
+          if (typeof db.update === 'function') {
+            await db
+              .update(publishJobs)
+              .set({
+                status: 'queued',
+                nextAttemptAt: scheduledAt,
+                updatedAt: new Date(),
+              })
+              .where(eq(publishJobs.idempotencyKey, idempotencyKey));
+          }
+        }
       }
 
       scheduled.push({

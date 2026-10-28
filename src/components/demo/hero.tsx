@@ -70,7 +70,7 @@ export function Hero({ onUrlExtracted, onSampleLoaded, className = '' }: HeroPro
       const created = (await res.json()) as { id: string; name: string };
       setSuccessMessage(`Brand kit "${created.name}" synthesized!`);
       onUrlExtracted?.(created.id);
-      router.push('/brand-kit');
+      router.push(`/brand-kit?id=${created.id}`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to extract brand facts';
       setError(msg);
@@ -100,11 +100,11 @@ export function Hero({ onUrlExtracted, onSampleLoaded, className = '' }: HeroPro
       }
 
       const sampleKit = (await res.json()) as { id: string; name: string };
-      setSuccessMessage(`Sample kit "${sampleKit.name}" loaded instantly!`);
+      setSuccessMessage(`Quick Start Template "${sampleKit.name}" loaded successfully!`);
       onSampleLoaded?.(sampleKit.id);
-      router.push('/brand-kit');
+      router.push(`/brand-kit?id=${sampleKit.id}`);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to load sample brand kit';
+      const msg = err instanceof Error ? err.message : 'Failed to load Quick Start Template';
       setError(msg);
     } finally {
       setLoadingSample(false);
@@ -196,22 +196,22 @@ export function Hero({ onUrlExtracted, onSampleLoaded, className = '' }: HeroPro
 
       {/* Quick Start Brand Presets & Template Button */}
       <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-text-muted mb-4">
-        <span className="font-medium mr-1 text-text">Try with example brand:</span>
+        <span className="font-medium mr-1 text-text">Quick Start Presets:</span>
         {EXAMPLE_BRANDS.map((chip) => (
-          <button
-            key={chip.name}
-            type="button"
-            onClick={() => handleChipClick(chip)}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface border border-border text-text hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors font-medium shadow-sm"
-            title={`${chip.name} — ${chip.tagline}`}
-          >
-            <span>{chip.name}</span>
-          </button>
+            <button
+              key={chip.name}
+              type="button"
+              onClick={() => handleChipClick(chip)}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface border border-border text-text hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent transition-colors font-medium shadow-sm"
+              title={`${chip.name} — ${chip.tagline}`}
+            >
+              <span>{chip.name}</span>
+            </button>
         ))}
 
         <span className="mx-1.5 text-border" aria-hidden="true">|</span>
 
-        {/* Load Sample Brand Kit Button (AC-F10-01) */}
+        {/* Load Quick Start Template Button */}
         <button
           type="button"
           onClick={handleLoadSample}
@@ -226,7 +226,7 @@ export function Hero({ onUrlExtracted, onSampleLoaded, className = '' }: HeroPro
           ) : (
             <>
               <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>Load Sample Brand Kit</span>
+              <span>Load Quick Start Template</span>
             </>
           )}
         </button>

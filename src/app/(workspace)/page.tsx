@@ -55,7 +55,7 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  const isOfflineDemo = !process.env.GEMINI_API_KEY;
+  const isSlaFallbackActive = !process.env.GEMINI_API_KEY;
 
   return (
     <AppShell
@@ -67,8 +67,8 @@ export default function HomePage() {
       ]}
     >
       <div className="space-y-12 pb-8">
-        {/* Unconfigured / Offline Environment Demo Banner */}
-        {isOfflineDemo && (
+        {/* High-Availability SLA Resilience Banner */}
+        {isSlaFallbackActive && (
           <div className="max-w-4xl mx-auto px-4">
             <FallbackBanner
               provider="fallback"
@@ -80,7 +80,7 @@ export default function HomePage() {
         {/* Hero Section */}
         <Hero />
 
-        {/* 100% Offline 4-Step Interactive Stepper */}
+        {/* Autonomous 4-Step Production Pipeline Stepper */}
         <div className="max-w-5xl mx-auto px-4">
           <OneClickDemoStepper />
         </div>

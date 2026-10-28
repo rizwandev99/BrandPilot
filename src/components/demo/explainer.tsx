@@ -68,7 +68,7 @@ export const EXPLAINER_STAGES: readonly ExplainerStage[] = [
     points: [
       'Idempotent Concurrency: FOR UPDATE SKIP LOCKED prevents duplicate publishing when multiple workers execute run-due.',
       'Exponential Backoff: Retries TEMPORARY and RATE_LIMITED failures with jitter and respects provider Retry-After headers.',
-      'Sandbox Simulator: Test failure handling with configurable injected errors (network drop, rate limit, token expired).',
+      'Chaos Resilience Matrix: Test scheduler fault-tolerance with deterministic injected errors (rate limits, upstream drops, token expiration) in safe developer sandboxes.',
       'Live LinkedIn OAuth: Optional personal profile publishing (w_member_social) with AES-256-GCM token encryption.',
     ],
     icon: Calendar,

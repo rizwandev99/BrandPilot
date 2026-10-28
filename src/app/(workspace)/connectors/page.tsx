@@ -172,7 +172,7 @@ function ConnectorsContent() {
           body: JSON.stringify({ mode: 'sandbox' }),
         });
         if (!res.ok) throw new Error('Failed to connect');
-        setPageSuccess(`${PROVIDER_METADATA[connector.provider].name} connected in Sandbox mode.`);
+        setPageSuccess(`${PROVIDER_METADATA[connector.provider].name} connected in Developer Sandbox environment.`);
       }
 
       await fetchConnectors(false);
@@ -233,7 +233,7 @@ function ConnectorsContent() {
     }
 
     setPageSuccess(
-      `Updated ${PROVIDER_METADATA[provider].name} simulation mode to "${mode}".`
+      `Updated ${PROVIDER_METADATA[provider].name} sandbox fault mode to "${mode}".`
     );
     await fetchConnectors(false);
   };
@@ -264,7 +264,7 @@ function ConnectorsContent() {
 
   // Reset all connectors to default sandbox state (AC-F7-05)
   const handleResetSandboxDefaults = async () => {
-    if (!confirm('Reset all 4 social connectors to clean default connected sandbox state?')) {
+    if (!confirm('Reset all 4 developer sandboxes to clean default connected testing state (clearing active faults)?')) {
       return;
     }
 
@@ -288,7 +288,7 @@ function ConnectorsContent() {
         })
       );
 
-      setPageSuccess('Reset all 4 connectors to default Sandbox connected state.');
+      setPageSuccess('Reset all 4 connectors to default Developer Sandbox connected state.');
       await fetchConnectors(false);
     } catch (err: unknown) {
       const errorObj = err as Error;
@@ -356,7 +356,7 @@ function ConnectorsContent() {
             </h1>
           </div>
           <p className="mt-1 text-xs text-text-muted">
-            Manage multi-channel social publishing adapters, probe channel latency, and verify resilience in sandbox environments (like Stripe Sandbox).
+            Manage multi-channel social publishing adapters, monitor real-time API latency, and verify delivery resilience across safe developer sandboxes (Stripe-grade staging) and live OAuth production integrations.
           </p>
         </div>
 
@@ -379,10 +379,10 @@ function ConnectorsContent() {
             onClick={handleResetSandboxDefaults}
             disabled={refreshing || loading}
             className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-surface-2 hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50"
-            title="Reset all 4 connectors to clean default connected sandbox state"
+            title="Reset all 4 connectors to default connected sandbox staging state"
           >
             <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>Reset Defaults</span>
+            <span>Reset Sandboxes</span>
           </button>
 
           {/* Refresh page data */}
@@ -448,7 +448,7 @@ function ConnectorsContent() {
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-semibold text-text">
-                  Advanced: Fault Injection & Simulation Matrix
+                  Chaos Engineering & SLA Resilience Testing Matrix
                 </h3>
                 {activeSimulationCount > 0 && (
                   <span className="inline-flex rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 font-mono text-[10px] font-semibold text-warning">
@@ -457,7 +457,7 @@ function ConnectorsContent() {
                 )}
               </div>
               <p className="text-xs text-text-muted">
-                Control failure behavior across all sandbox connectors to test publisher retries and backoff.
+                Simulate upstream outages, quota limits, and token expirations in safe developer sandboxes to verify automated retry policies before live publishing.
               </p>
             </div>
           </div>
@@ -499,8 +499,8 @@ function ConnectorsContent() {
 
                     <div className="text-[11px] text-text-muted truncate">
                       {simMode === 'none'
-                        ? 'Operating normally'
-                        : `Simulating ${simMode}`}
+                        ? 'Normal Operation (200 OK)'
+                        : `Fault Active: ${simMode.toUpperCase()}`}
                     </div>
 
                     <button
@@ -508,7 +508,7 @@ function ConnectorsContent() {
                       onClick={() => setActiveSimulatorConnector(connector)}
                       className="w-full rounded-md border border-border bg-surface px-2 py-1 text-xs font-medium text-text hover:bg-surface-2 hover:border-text-muted transition-colors"
                     >
-                      Configure Fault
+                      Configure Fault Mode
                     </button>
                   </div>
                 );
@@ -518,8 +518,8 @@ function ConnectorsContent() {
             <div className="rounded-lg border border-border/80 bg-surface-2/40 p-3 text-xs text-text-muted flex items-start gap-2.5">
               <HelpCircle className="h-4 w-4 shrink-0 text-accent mt-0.5" aria-hidden="true" />
               <div>
-                <span className="font-medium text-text">How Failure Simulation Works: </span>
-                When a simulated error is configured for a provider, any publish jobs dispatched by the scheduler or manual &quot;Publish now&quot; actions will encounter that error. BrandPilot will verify its exponential backoff algorithm with jitter (temporary/500), respect retry-after windows (rate_limit/429), reject permanently without retry (permanent/400), or trigger reconnect warnings (auth_expired/401).
+                <span className="font-medium text-text">Developer Sandbox & Fault Injection Architecture: </span>
+                Like Stripe and PayPal developer sandboxes, BrandPilot provides isolated test adapters for each social network. Configuring injected faults allows teams to verify that background workers execute exponential backoff with randomized jitter (500), strictly obey upstream Retry-After rate limits (429), prevent retries on validation rejections (400), and trigger administrator re-authorization alerts (401) before going live.
               </div>
             </div>
           </div>

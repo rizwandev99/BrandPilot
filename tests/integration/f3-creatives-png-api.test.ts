@@ -60,7 +60,7 @@ describe('F3 Content Agent: Branded Creatives PNG Route (AC-F3-06, AC-F3-07)', (
           },
         }));
 
-        const { GET } = await import('@/app/api/creatives/[postId].png/route');
+        const { GET } = await import('@/app/api/creatives/[postId]/route');
         const res = await GET(
           new Request(`http://localhost:3000/api/creatives/${postId}.png`) as any,
           { params: Promise.resolve({ postId: `${postId}.png` }) }
@@ -97,7 +97,7 @@ describe('F3 Content Agent: Branded Creatives PNG Route (AC-F3-06, AC-F3-07)', (
         },
       }));
 
-      const { GET } = await import('@/app/api/creatives/[postId].png/route');
+      const { GET } = await import('@/app/api/creatives/[postId]/route');
       const res = await GET(
         new Request('http://localhost:3000/api/creatives/nonexistent-id.png') as any,
         { params: Promise.resolve({ postId: 'nonexistent-id.png' }) }

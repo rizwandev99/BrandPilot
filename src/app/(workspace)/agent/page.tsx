@@ -16,6 +16,7 @@ import {
   RotateCw,
   Sparkles,
   Info,
+  Check,
 } from 'lucide-react';
 import type { Channel } from '@/lib/channels';
 
@@ -211,7 +212,7 @@ export default function AgentPage() {
 
     let brandKitId = selectedBrandKitId;
     if (!brandKitId) {
-      // Create a default sample brand kit if none exists
+      // Create default enterprise starter template if none exists
       try {
         const res = await fetch('/api/brand-kits', {
           method: 'POST',
@@ -310,12 +311,12 @@ export default function AgentPage() {
         {/* Header banner */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">
+            <div className="p-2.5 rounded-xl bg-accent/15 text-accent border border-accent/25">
               <Bot className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-foreground">Content Agent Pipeline</h1>
-              <p className="text-sm text-muted-foreground">
+              <h1 className="text-2xl font-bold tracking-tight text-text">Content Agent Pipeline</h1>
+              <p className="text-sm text-text-muted">
                 3-step state machine: generates on-brand ideas, multi-channel copy, and branded graphic cards.
               </p>
             </div>
@@ -324,27 +325,27 @@ export default function AgentPage() {
 
         {/* High-Availability Fallback Note Banner (AC-F3-08) */}
         {hasFallbackNote && (
-          <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-900 dark:text-amber-200 flex items-start gap-3">
-            <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+          <div className="p-4 rounded-xl border border-warning/30 bg-warning/10 text-text flex items-start gap-3">
+            <Info className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
             <div className="text-sm">
-              <p className="font-semibold">High-Availability Engine Engaged</p>
-              <p>Synthesized via resilient backup pipeline to preserve uptime.</p>
+              <p className="font-semibold text-warning">High-Availability Engine Engaged</p>
+              <p className="text-text-muted">Synthesized via resilient backup pipeline to preserve uptime.</p>
             </div>
           </div>
         )}
 
         {/* Configuration Card */}
-        <div className="p-6 rounded-2xl border border-border bg-card shadow-sm space-y-6">
-          <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-primary" />
+        <div className="p-6 rounded-2xl border border-border bg-surface shadow-sm space-y-6">
+          <h2 className="text-base font-semibold text-text flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-accent" />
             Campaign Parameters
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Goal Input */}
             <div className="space-y-2">
-              <label htmlFor="goal" className="text-sm font-medium text-foreground">
-                Campaign Goal & Focus
+              <label htmlFor="goal" className="text-sm font-medium text-text">
+                Campaign Goal &amp; Focus
               </label>
               <input
                 id="goal"
@@ -353,13 +354,13 @@ export default function AgentPage() {
                 disabled={isProcessing}
                 onChange={(e) => setGoal(e.target.value)}
                 placeholder="e.g. Announce 2.0 release with 50% faster indexing"
-                className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:opacity-50"
+                className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-border bg-surface-2 text-text placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
               />
             </div>
 
             {/* Brand Kit Selection */}
             <div className="space-y-2">
-              <label htmlFor="brandKit" className="text-sm font-medium text-foreground">
+              <label htmlFor="brandKit" className="text-sm font-medium text-text">
                 Target Brand Kit
               </label>
               {brandKits.length > 0 ? (
@@ -368,7 +369,7 @@ export default function AgentPage() {
                   value={selectedBrandKitId}
                   disabled={isProcessing}
                   onChange={(e) => setSelectedBrandKitId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:opacity-50"
+                  className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-border bg-surface-2 text-text focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
                 >
                   {brandKits.map((bk) => (
                     <option key={bk.id} value={bk.id}>
@@ -377,8 +378,8 @@ export default function AgentPage() {
                   ))}
                 </select>
               ) : (
-                <div className="text-xs text-muted-foreground p-2.5 border border-dashed border-border rounded-lg">
-                  Using default built-in Brand Kit (auto-initialized).
+                <div className="text-xs text-text-muted p-2.5 border border-dashed border-border rounded-lg bg-surface-2">
+                  Using Enterprise Starter Template (auto-initialized).
                 </div>
               )}
             </div>
@@ -387,7 +388,7 @@ export default function AgentPage() {
           {/* Channels & Post Count */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
             <div className="space-y-2">
-              <span className="text-sm font-medium text-foreground block">Target Channels</span>
+              <span className="text-sm font-medium text-text block">Target Channels</span>
               <div className="flex flex-wrap gap-2">
                 {(['linkedin', 'x', 'instagram', 'facebook'] as Channel[]).map((ch) => {
                   const isSelected = channels.includes(ch);
@@ -397,13 +398,18 @@ export default function AgentPage() {
                       type="button"
                       disabled={isProcessing}
                       onClick={() => handleChannelToggle(ch)}
-                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
                         isSelected
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-border bg-background text-muted-foreground hover:bg-muted'
-                      } disabled:opacity-50`}
+                          ? 'border-accent bg-accent text-on-accent shadow-sm ring-1 ring-accent'
+                          : 'border-border bg-surface-2 text-text-muted hover:border-accent/50 hover:text-text'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
-                      {ch.toUpperCase()}
+                      {isSelected ? (
+                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                      ) : (
+                        <span className="w-1.5 h-1.5 rounded-full bg-text-muted/40" />
+                      )}
+                      <span>{ch.toUpperCase()}</span>
                     </button>
                   );
                 })}
@@ -411,39 +417,59 @@ export default function AgentPage() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="postCount" className="text-sm font-medium text-foreground">
+              <label htmlFor="postCount" className="text-sm font-medium text-text">
                 Number of Posts
               </label>
-              <div className="flex items-center gap-3">
-                {[2, 4, 6].map((num) => (
+              <div className="flex flex-wrap items-center gap-2">
+                {[2, 4, 6, 8].map((num) => (
                   <button
                     key={num}
                     type="button"
                     disabled={isProcessing}
                     onClick={() => setPostCount(num)}
-                    className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
                       postCount === num
-                        ? 'border-primary bg-primary text-primary-foreground'
-                        : 'border-border bg-background text-muted-foreground hover:bg-muted'
-                    } disabled:opacity-50`}
+                        ? 'border-accent bg-accent text-on-accent shadow-sm ring-1 ring-accent'
+                        : 'border-border bg-surface-2 text-text-muted hover:border-accent/50 hover:text-text'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {num} Posts
                   </button>
                 ))}
+                <div className="flex items-center gap-1.5 pl-1">
+                  <span className="text-xs text-text-muted">or enter:</span>
+                  <input
+                    id="postCount"
+                    type="number"
+                    min={1}
+                    max={20}
+                    value={postCount}
+                    disabled={isProcessing}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      if (!isNaN(val)) {
+                        setPostCount(Math.max(1, Math.min(20, val)));
+                      } else if (e.target.value === '') {
+                        setPostCount(1);
+                      }
+                    }}
+                    className="w-16 px-2.5 py-1 text-xs text-center font-bold rounded-lg border border-border bg-surface-2 text-text focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
+                  />
+                </div>
               </div>
             </div>
           </div>
 
           {/* Actions */}
           <div className="pt-2 flex items-center justify-between border-t border-border">
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-text-muted">
               Guaranteed channel limits &amp; brand kit donts compliance
             </div>
             <button
               type="button"
               disabled={isProcessing || !goal.trim()}
               onClick={handleStartRun}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow hover:opacity-95 transition-all disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-on-accent font-semibold text-sm shadow hover:bg-accent-hover active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
             >
               {isProcessing ? (
                 <>
@@ -462,7 +488,7 @@ export default function AgentPage() {
 
         {/* General Error Banner */}
         {generalError && (
-          <div className="p-4 rounded-xl border border-destructive/20 bg-destructive/10 text-destructive flex items-center justify-between">
+          <div className="p-4 rounded-xl border border-danger/20 bg-danger/10 text-danger flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm">
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
               <span>{generalError}</span>
@@ -472,7 +498,7 @@ export default function AgentPage() {
                 type="button"
                 onClick={handleRetryStep}
                 disabled={isProcessing}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground text-xs font-semibold hover:opacity-90 transition-all"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-danger text-white text-xs font-semibold hover:opacity-90 transition-all cursor-pointer"
               >
                 <RotateCw className="w-3.5 h-3.5" />
                 Retry step
@@ -482,17 +508,17 @@ export default function AgentPage() {
         )}
 
         {/* Stepper Pipeline Visualizer (AC-F3-11) */}
-        <div className="p-6 rounded-2xl border border-border bg-card shadow-sm space-y-6">
+        <div className="p-6 rounded-2xl border border-border bg-surface shadow-sm space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-foreground">3-Step Execution Pipeline</h2>
+            <h2 className="text-base font-semibold text-text">3-Step Execution Pipeline</h2>
             {activeRun && (
               <span
                 className={`px-2.5 py-1 text-xs font-bold rounded-full uppercase tracking-wider ${
                   activeRun.status === 'succeeded'
-                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                    ? 'bg-success/15 text-success border border-success/30'
                     : activeRun.status === 'failed'
-                    ? 'bg-destructive/10 text-destructive border border-destructive/20'
-                    : 'bg-primary/10 text-primary border border-primary/20'
+                    ? 'bg-danger/15 text-danger border border-danger/30'
+                    : 'bg-accent/15 text-accent border border-accent/30'
                 }`}
               >
                 {activeRun.status}
@@ -512,12 +538,12 @@ export default function AgentPage() {
                   <div
                     className={`absolute -left-[31px] top-1 w-6 h-6 rounded-full flex items-center justify-center border transition-all ${
                       status === 'succeeded'
-                        ? 'bg-emerald-500 border-emerald-500 text-white'
+                        ? 'bg-success border-success text-white'
                         : status === 'running'
-                        ? 'bg-primary border-primary text-primary-foreground animate-pulse'
+                        ? 'bg-accent border-accent text-on-accent animate-pulse'
                         : status === 'failed'
-                        ? 'bg-destructive border-destructive text-destructive-foreground'
-                        : 'bg-card border-border text-muted-foreground'
+                        ? 'bg-danger border-danger text-white'
+                        : 'bg-surface-2 border-border text-text-muted'
                     }`}
                   >
                     {status === 'succeeded' ? (
@@ -532,32 +558,36 @@ export default function AgentPage() {
                   </div>
 
                   {/* Step content */}
-                  <div className="p-4 rounded-xl border border-border/60 bg-background/50 hover:bg-background transition-all space-y-2">
+                  <div className="p-4 rounded-xl border border-border bg-surface-2/40 hover:bg-surface-2/80 transition-all space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <StepIcon className="w-4 h-4 text-primary" />
-                        <span className="font-semibold text-sm text-foreground">{step.label}</span>
+                        <StepIcon className="w-4 h-4 text-accent" />
+                        <span className="font-semibold text-sm text-text">{step.label}</span>
                       </div>
                       {record?.provider && (
-                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border">
-                          {record.provider}
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-surface border border-border text-text-muted">
+                          {record.provider === 'gemini'
+                            ? 'Live Gemini 2.5 Flash'
+                            : record.provider === 'fallback'
+                            ? 'High-Availability SLA Engine'
+                            : record.provider}
                         </span>
                       )}
                     </div>
 
-                    <p className="text-xs text-muted-foreground">{step.description}</p>
+                    <p className="text-xs text-text-muted">{step.description}</p>
 
                     {/* Step output summary */}
                     {status === 'succeeded' && record?.output != null ? (
-                      <div className="mt-3 p-3 rounded-lg bg-muted/40 border border-border text-xs font-mono overflow-x-auto max-h-36">
-                        <pre className="text-muted-foreground">
+                      <div className="mt-3 p-3 rounded-lg bg-surface border border-border text-xs font-mono overflow-x-auto max-h-36">
+                        <pre className="text-text-muted">
                           {JSON.stringify(record.output, null, 2)}
                         </pre>
                       </div>
                     ) : null}
 
                     {status === 'failed' && record?.error && (
-                      <div className="mt-2 text-xs text-destructive">
+                      <div className="mt-2 text-xs text-danger font-medium">
                         Error: {record.error}
                       </div>
                     )}
@@ -570,13 +600,13 @@ export default function AgentPage() {
           {/* Success actions */}
           {activeRun?.status === 'succeeded' && (
             <div className="pt-4 border-t border-border flex items-center justify-between">
-              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-sm font-semibold">
+              <div className="flex items-center gap-2 text-success text-sm font-semibold">
                 <CheckCircle2 className="w-5 h-5" />
                 Pipeline complete! Posts drafted in approval queue.
               </div>
               <Link
                 href="/queue"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow hover:opacity-95 transition-all"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-on-accent font-semibold text-sm shadow hover:bg-accent-hover transition-all cursor-pointer"
               >
                 <span>View posts in queue</span>
                 <ArrowRight className="w-4 h-4" />

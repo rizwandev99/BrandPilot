@@ -61,7 +61,7 @@ export const DEMO_STEPS: readonly DemoStepDefinition[] = [
     id: 'scheduled_publish',
     stepNumber: 4,
     title: 'Schedule & Publish',
-    description: 'Postgres SKIP LOCKED scheduler publishing to multi-channel sandbox connectors.',
+    description: 'Postgres SKIP LOCKED scheduler publishing to multi-channel connectors.',
     link: '/calendar',
     linkLabel: 'View Calendar',
     icon: Calendar,
@@ -113,7 +113,7 @@ export function OneClickDemoStepper({ onComplete, className = '' }: OneClickDemo
       });
 
       if (!kitRes.ok) {
-        throw new Error(`Failed to initialize sample brand kit (HTTP ${kitRes.status})`);
+        throw new Error(`Failed to initialize Quick Start Template (HTTP ${kitRes.status})`);
       }
 
       const brandKit = (await kitRes.json()) as { id: string; name: string };
@@ -223,7 +223,7 @@ export function OneClickDemoStepper({ onComplete, className = '' }: OneClickDemo
 
       onComplete?.();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Demo execution error';
+      const msg = err instanceof Error ? err.message : 'Pipeline execution error';
       setState((prev) => ({
         ...prev,
         status: 'error',
@@ -301,7 +301,7 @@ export function OneClickDemoStepper({ onComplete, className = '' }: OneClickDemo
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium bg-danger text-white hover:bg-danger/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger transition-colors"
             >
               <RotateCcw className="w-4 h-4" aria-hidden="true" />
-              <span>Retry Demo</span>
+              <span>Retry Pipeline</span>
             </button>
           )}
         </div>
@@ -413,7 +413,7 @@ export function OneClickDemoStepper({ onComplete, className = '' }: OneClickDemo
               </p>
               <p className="text-text-muted text-xs">
                 Brand kit synthesized &bull; 4 multi-channel posts generated in review &bull; 4
-                posts approved &bull; Jobs published to sandbox connectors.
+                posts approved &bull; Jobs published to live & sandbox connectors.
               </p>
             </div>
           </div>
@@ -445,7 +445,7 @@ export function OneClickDemoStepper({ onComplete, className = '' }: OneClickDemo
         >
           <AlertCircle className="w-5 h-5 shrink-0 text-danger" aria-hidden="true" />
           <p className="font-medium">
-            Demo execution error: {state.errorMessage}
+            Pipeline execution error: {state.errorMessage}
           </p>
         </div>
       )}

@@ -180,6 +180,37 @@ export function QueueTable({ initialPosts = [] }: QueueTableProps) {
     [executeOptimisticTransition]
   );
 
+  const handleTransition = React.useCallback(
+    async (post: PostItem, targetStatus: string) => {
+      await executeOptimisticTransition(post.id, targetStatus);
+    },
+    [executeOptimisticTransition]
+  );
+
+  const handlePublishNow = React.useCallback(
+    async (post: PostItem) => {
+      setBulkLoading(true);
+      setErrorMessage(null);
+      setSuccessBanner(null);
+      try {
+        const res = await fetch(`/api/posts/${post.id}/publish-now`, {
+          method: 'POST',
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || 'Failed to publish post');
+        }
+        setSuccessBanner(`Post published successfully to ${post.channel.toUpperCase()}!`);
+        fetchPosts();
+      } catch (err: unknown) {
+        setErrorMessage(err instanceof Error ? err.message : 'Publish failed');
+      } finally {
+        setBulkLoading(false);
+      }
+    },
+    [fetchPosts]
+  );
+
   const handleReject = async (post: PostItem) => {
     await executeOptimisticTransition(post.id, 'rejected');
   };
@@ -473,6 +504,8 @@ export function QueueTable({ initialPosts = [] }: QueueTableProps) {
               onHold={(p) => setHoldingPost(p)}
               onReject={handleReject}
               onEdit={(p) => setEditingPost(p)}
+              onTransition={handleTransition}
+              onPublishNow={handlePublishNow}
             />
           ))}
         </div>

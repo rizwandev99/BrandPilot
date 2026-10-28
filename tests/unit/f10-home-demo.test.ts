@@ -60,8 +60,8 @@ describe('F10 Home Page, 100% Offline Demo, Documentation & WCAG AA (AC-F10-01..
       expect(text).toContain('DevFlow');
       expect(text).toContain('CoffeeCo');
 
-      // Verify "Load Sample Brand Kit" button
-      const sampleBtn = $('button:contains("Load Sample"), button:contains("Sample Brand Kit")');
+      // Verify "Quick Start Template" button
+      const sampleBtn = $('button:contains("Quick Start Template"), button:contains("Load Sample"), button:contains("Sample Brand Kit")');
       expect(sampleBtn.length).toBeGreaterThanOrEqual(1);
     });
 

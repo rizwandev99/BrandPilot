@@ -14,17 +14,56 @@ import {
 import * as workspaceService from '@/server/workspace/workspace-service';
 import { ScopedRepository } from '@/server/db/scoped-queries';
 
+const DEFAULT_COOKIE_NAME = 'brandpilot_workspace_id';
+const DEFAULT_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax' as const,
+  path: '/',
+};
+
+function getCookieName(): string {
+  try {
+    return (workspaceService as { WORKSPACE_COOKIE_NAME?: string }).WORKSPACE_COOKIE_NAME || DEFAULT_COOKIE_NAME;
+  } catch {
+    return DEFAULT_COOKIE_NAME;
+  }
+}
+
+function getCookieOptions() {
+  try {
+    return (workspaceService as { WORKSPACE_COOKIE_OPTIONS?: typeof DEFAULT_COOKIE_OPTIONS }).WORKSPACE_COOKIE_OPTIONS || DEFAULT_COOKIE_OPTIONS;
+  } catch {
+    return DEFAULT_COOKIE_OPTIONS;
+  }
+}
+
 async function getWorkspaceId(): Promise<string> {
   let cookieVal: string | undefined;
+  type CookieStoreType = Awaited<ReturnType<typeof cookies>>;
+  let cookieStore: CookieStoreType | undefined;
   try {
-    const cookieStore = await cookies();
-    const cookieName = workspaceService.WORKSPACE_COOKIE_NAME || 'brandpilot_workspace_id';
+    cookieStore = await cookies();
+    const cookieName = getCookieName() || 'brandpilot_workspace_id';
     cookieVal = cookieStore.get(cookieName)?.value;
   } catch {
     // Outside of Next request context (e.g. testing)
   }
 
   const resolution = await workspaceService.resolveWorkspace(cookieVal);
+
+  if (cookieStore) {
+    try {
+      cookieStore.set(
+        getCookieName(),
+        resolution.workspaceId,
+        getCookieOptions()
+      );
+    } catch {
+      // Non-fatal if context is read-only
+    }
+  }
+
   return resolution.workspaceId;
 }
 
@@ -138,7 +177,9 @@ export async function POST(req: Request) {
         provider: SAMPLE_BRAND_KIT.provider,
       });
 
-      return NextResponse.json(inserted, { status: 201 });
+      const res = NextResponse.json(inserted, { status: 201 });
+      res.cookies.set(getCookieName(), workspaceId, getCookieOptions());
+      return res;
     }
 
     if (!('url' in requestData)) {
@@ -182,7 +223,9 @@ export async function POST(req: Request) {
             provider: cachedKit.provider || 'gemini',
           });
 
-          return NextResponse.json(inserted, { status: 201 });
+          const res = NextResponse.json(inserted, { status: 201 });
+          res.cookies.set(getCookieName(), workspaceId, getCookieOptions());
+          return res;
         }
       }
     } catch (err) {
@@ -199,7 +242,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error: err.code || 'UPSTREAM_ERROR',
-          message: 'We could not open that website. Try another URL or use the sample brand.',
+          message: 'Unable to reach that website (unable to fetch). Please check the URL or select an enterprise starter template.',
         },
         { status: 422 }
       );
@@ -279,7 +322,9 @@ export async function POST(req: Request) {
       provider: usedProvider,
     });
 
-    return NextResponse.json(inserted, { status: 201 });
+    const res = NextResponse.json(inserted, { status: 201 });
+    res.cookies.set(getCookieName(), workspaceId, getCookieOptions());
+    return res;
   } catch (err: unknown) {
     const errorObj = err as Error;
     console.error('[API /api/brand-kits] Error processing request:', errorObj);
@@ -301,5 +346,7 @@ export async function GET() {
   const repo = new ScopedRepository(workspaceId);
   const kits = await repo.getBrandKits();
 
-  return NextResponse.json(kits);
+  const res = NextResponse.json(kits);
+  res.cookies.set(getCookieName(), workspaceId, getCookieOptions());
+  return res;
 }

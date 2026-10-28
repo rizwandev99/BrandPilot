@@ -22,6 +22,11 @@ const config: Config = {
           hover: 'var(--accent-hover)',
           soft: 'var(--accent-soft)',
         },
+        primary: {
+          DEFAULT: 'var(--accent)',
+          hover: 'var(--accent-hover)',
+          foreground: 'var(--on-accent)',
+        },
         'on-accent': 'var(--on-accent)',
         success: 'var(--success)',
         warning: 'var(--warning)',
