@@ -27,4 +27,8 @@ Core capabilities:
 - Offline demo guarantee: `FallbackProvider` and sample brand kit must execute without network calls or external API keys.
 
 ### Active Milestone & Next Steps
-- Status: Project 100% Complete & Certified. All milestones M0–M12 verified and passed review gates with "Open items: none". 406/406 automated tests passing with 0 type errors and 0 lint warnings. Victory confirmed by independent auditor.
+- Status: Project 100% Complete & Certified in Production.
+- All milestones M0–M12 verified and passed review gates with "Open items: none". 406/406 automated tests passing with 0 type errors and 0 lint warnings.
+- Production Deployment: Successfully deployed to Vercel with Neon Postgres production database credentials configured (`DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `CRON_SECRET`).
+- Third-Party AI Integrations: Live Gemini API key configured (`GEMINI_API_KEY`), enabling real-time LLM extraction and copy generation alongside the deterministic fallback safety net.
+- Remaining Optional Items: Live LinkedIn OAuth credentials (`LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `ENABLE_LIVE_LINKEDIN=true`) if personal LinkedIn profile live posting is desired, and Playwright E2E suite (`pnpm test:e2e`).

@@ -101,3 +101,39 @@ Implement the Home page with one-click full demo walkthrough capable of running 
 - [ ] Incoming webhooks verify HMAC-SHA256 signatures over raw body within 5-minute freshness window.
 - [ ] Automation engine triggers on incoming webhook or post events, evaluates conditions, and safely executes actions without recursion loops.
 - [ ] One-click demo runs end-to-end in under 3 minutes even without external internet or AI API keys.
+
+
+## Follow-up — 2026-10-28T04:41:50Z
+
+Implement and run a comprehensive browser-level Playwright end-to-end testing suite for BrandPilot, verifying interactive user journeys across the application.
+
+Working directory: c:\Users\rizwan\Desktop\projects\BrandPilot-AuroScale
+Integrity mode: development
+
+## Requirements
+
+### R1. Playwright Test Runner & Environment Setup
+Ensure Playwright browser binaries (e.g., Chromium) and test configurations are fully set up so that running `pnpm test:e2e` spins up or connects to the local Next.js server (`http://localhost:3000`) and executes all spec files headlessly with clean exit codes and no lingering processes.
+
+### R2. Interactive Golden Path & Feature User Journeys
+Write interactive Playwright test specs (`tests/e2e/*.spec.ts`) that test the UI like a real user:
+1. **Home / Demo Flow (`/`):** Click the "Try Instant Sample Demo" button, verify brand kit generation, navigate through the demo stepper, and check navigation to workspace sections.
+2. **Brand Kit Management (`/brand-kit`):** Verify brand kit display, color palette contrast badges, and form interactions.
+3. **Content Pipeline (`/runs`):** Verify initiating a run, viewing the 3-step progress visualizer (`idea` -> `creative` -> `campaign`), and inspecting generated posts and creatives.
+4. **Approval Queue & State Machine (`/queue`):** Test clicking post status transitions (Approve, Hold with reason modal, Reject), verifying live character counters, and testing keyboard navigation shortcuts (`A`, `H`, `E`, `?`).
+5. **Content Calendar (`/calendar`):** Test switching months, verifying post status cards on calendar cells, and clicking into post details.
+6. **Connectors & Webhooks (`/connectors`, `/webhooks`):** Test failure simulator modals, copy-to-clipboard actions, and secret rotation modals.
+
+### R3. Responsive AppShell & UI Guardrails
+Verify UI accessibility and responsiveness:
+1. Test desktop sidebar expansion/collapse and mobile navigation drawer.
+2. Test theme switcher (light/dark mode toggle without flashing or broken CSS classes).
+3. Verify that interactive actions trigger appropriate feedback (toasts, loading spinners, state changes).
+
+## Acceptance Criteria
+
+### Automated E2E Verification
+- [ ] `pnpm test:e2e` completes with 100% of specs passing and 0 failures.
+- [ ] Test suite covers interactive workflows for Home, Brand Kit, Agent Runs, Queue, Calendar, and Connectors.
+- [ ] Playwright properly executes in headless mode on Windows with reliable teardown.
+- [ ] TypeScript check (`pnpm typecheck`) and ESLint (`pnpm lint`) continue to pass with 0 errors across all test files.
